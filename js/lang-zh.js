@@ -1,5 +1,5 @@
 export default {
-    title: "SVG转PNG图片生成器",
+    title: "SVG编辑、预览与导出",
     author: '大谨 <a href="#" title="大谨">用❤️打造</a>',
     dropZoneText: "拖放SVG文件到这里，或者",
     chooseFile: "选择文件",
@@ -13,7 +13,9 @@ export default {
     aspectRatioLabel: "保持长宽比",
     resetBtn: "还原尺寸",
     fitBtn: "适应显示",
-    downloadBtn: "下载PNG图片",
+    downloadFormatLabel: "导出：",
+    downloadBtn: "下载图片",
+    downloadSVGBtn: "下载SVG文件",
     alerts: {
         chooseSVG: "请选择SVG文件！",
         inputSVG: "请先输入SVG代码！",

@@ -3,44 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SVG to PNG Converter</title>
+    <title>SVG Editor & Image Exporter</title>
+    <meta name="description" content="A lightweight web tool for editing SVG code, real-time preview, and exporting as PNG, JPEG, WebP or SVG files. 在线SVG代码编辑与实时预览，支持一键导出PNG、JPEG、WebP、SVG等多种格式图片。">
     <link rel="stylesheet" href="css/style.css">
-    <!-- 新增 favicon 图标（各浏览器自动识别png/svg/ico） -->
     <link rel="icon" type="image/png" href="assets/favicon.ico">
 </head>
 <body>
-    <!-- 网站 Logo 区域，位于页面左上角 -->
     <div class="site-logo">
         <img src="assets/favicon.ico" alt="Logo" />
     </div>
 
-    <!-- 右上角语言切换 -->
     <div class="lang-switch">
         <button id="lang-en" data-lang="en">English</button>
         <button id="lang-zh" data-lang="zh">中文</button>
     </div>
 
-    <!-- 作者信息 -->
     <div class="author-info" id="authorInfo">
         Built with ❤️ by <a href="#" title="Made with heart">Dajin</a>
     </div>
     
-    <!-- 文件拖放区域 -->
     <div class="drop-zone" id="dropZone">
         <p id="dropZoneText">Drag SVG files here or</p>
         <button id="chooseFileBtn">Choose File</button>
         <input type="file" id="fileInput" accept=".svg,image/svg+xml">
     </div>
     
-    <!-- 主内容区域 -->
     <div class="main-content">
-        <!-- SVG代码编辑器 -->
         <div class="editor-container">
             <div class="editor-header" id="editorHeader">SVG Editor</div>
             <textarea id="svgEditor" placeholder="Input or paste SVG code here..."></textarea>
         </div>
-        
-        <!-- 实时预览区域 -->
         <div class="preview-container">
             <div class="preview-header">
                 <span id="previewHeader">Preview</span>
@@ -52,7 +44,6 @@
         </div>
     </div>
     
-    <!-- 控制面板 -->
     <div class="controls">
         <div class="control-group">
             <label for="widthInput" id="widthLabel">Width:</label>
@@ -79,7 +70,23 @@
         </div>
         <div class="right-controls">
             <button class="fit-btn" id="fitBtn">Fit</button>
-            <button class="download-btn" id="downloadBtn">Download PNG</button>
+            <!-- 下载图片按钮组 -->
+            <div class="download-image-group" id="downloadImageGroup">
+                <button class="download-btn" id="downloadBtn" type="button" aria-haspopup="listbox" aria-expanded="false" aria-controls="downloadFormatMenu">
+                    <span id="downloadImageText">Download Image</span>
+                    <span class="download-caret" aria-hidden="true">
+                        <svg class="caret-svg" width="16" height="16" viewBox="0 0 14 14">
+                            <path d="M3 8l4-4 4 4" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/>
+                        </svg>
+                    </span>
+                </button>
+                <ul class="download-format-menu" id="downloadFormatMenu" role="listbox" tabindex="-1" aria-label="Image format" style="display: none;">
+                    <li data-format="png" class="active" role="option" aria-selected="true" tabindex="0">PNG</li>
+                    <li data-format="jpeg" role="option" aria-selected="false" tabindex="0">JPEG</li>
+                    <li data-format="webp" role="option" aria-selected="false" tabindex="0">WebP</li>
+                </ul>
+            </div>
+            <button class="download-svg-btn" id="downloadSVGBtn">Download SVG</button>
         </div>
     </div>
     <script type="module" src="js/main.js"></script>

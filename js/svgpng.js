@@ -1,5 +1,4 @@
 export function setupSVGPNGHandlers(langObj, alertObj, setZoomInfo) {
-    // ===== DOM元素 =====
     const dropZone = document.getElementById('dropZone');
     const fileInput = document.getElementById('fileInput');
     const chooseFileBtn = document.getElementById('chooseFileBtn');
@@ -12,14 +11,17 @@ export function setupSVGPNGHandlers(langObj, alertObj, setZoomInfo) {
     const keepSizeCheckbox = document.getElementById('keepSize');
     const stretchToFitCheckbox = document.getElementById('stretchToFit');
     const downloadBtn = document.getElementById('downloadBtn');
+    const downloadImageText = document.getElementById('downloadImageText');
+    const downloadImageGroup = document.getElementById('downloadImageGroup');
+    const downloadFormatMenu = document.getElementById('downloadFormatMenu');
     const resetBtn = document.getElementById('resetBtn');
     const fitBtn = document.getElementById('fitBtn');
     const zoomInfo = document.getElementById('zoomInfo');
+    const downloadSVGBtn = document.getElementById('downloadSVGBtn');
 
-    // ===== 状态变量 =====
     let originalAspectRatio = 1;
-    let originalWidth = 200;
-    let originalHeight = 200;
+    let originalWidth = 220;
+    let originalHeight = 150;
     let currentScale = 1;
     let baseScale = 1;
     let currentTranslateX = 0;
@@ -29,47 +31,30 @@ export function setupSVGPNGHandlers(langObj, alertObj, setZoomInfo) {
     let dragStartY = 0;
     let lastSvgContent = '';
     let isNewContent = true;
+    let currentImageFormat = 'png';
+    let menuTimeout = null;
 
-    /**
-     * 语言切换后同步多语言界面 & placeholder
-     */
     function rerenderLangStatic() {
         svgEditor.placeholder = langObj.editorPlaceholder;
         zoomInfo.textContent = langObj.zoom.replace('{percent}', Math.round(currentScale * 100));
+        if (downloadImageText) downloadImageText.textContent = langObj.downloadBtn;
     }
 
-    /**
-     * 更新SVG预览
-     */
     function updatePreview() {
-        // 获取并清理SVG代码
         const svgCode = svgEditor.value.trim();
-
-        // 如果没有SVG代码，显示提示信息
         if (!svgCode) {
             svgPreview.innerHTML = `<p style="color: #999;">SVG preview will show here</p>`;
             return;
         }
-
-        // 内容变化判定
         const contentDiff = getContentDifference(lastSvgContent, svgCode);
         isNewContent = contentDiff > 0.5 || lastSvgContent === '';
         lastSvgContent = svgCode;
-
         try {
-            // 清理SVG代码
-            const cleanSvgCode = svgCode
-                .replace(/<\?xml[^?]*\?>/g, '')
-                .replace(/<!DOCTYPE[^>]*>/g, '')
-                .trim();
-
+            const cleanSvgCode = svgCode.replace(/<\?xml[^?]*\?>/g, '').replace(/<!DOCTYPE[^>]*>/g, '').trim();
             const parser = new DOMParser();
             const svgDoc = parser.parseFromString(cleanSvgCode, 'image/svg+xml');
             const svgElement = svgDoc.querySelector('svg');
-
             if (!svgElement) throw new Error(alertObj.svgError);
-
-            // 获取SVG的原始尺寸
             const viewBox = svgElement.getAttribute('viewBox');
             let svgWidth, svgHeight;
             if (viewBox) {
@@ -80,8 +65,6 @@ export function setupSVGPNGHandlers(langObj, alertObj, setZoomInfo) {
                 svgWidth = parseFloat(svgElement.getAttribute('width')) || 100;
                 svgHeight = parseFloat(svgElement.getAttribute('height')) || 100;
             }
-
-            // 如果是新内容，更新
             if (isNewContent) {
                 originalWidth = svgWidth;
                 originalHeight = svgHeight;
@@ -91,8 +74,6 @@ export function setupSVGPNGHandlers(langObj, alertObj, setZoomInfo) {
                     heightInput.value = Math.round(svgHeight);
                 }
             }
-
-            // 目标尺寸
             const targetWidth = parseInt(widthInput.value) || originalWidth;
             const targetHeight = parseInt(heightInput.value) || originalHeight;
             const shouldStretch = stretchToFitCheckbox.checked;
@@ -138,7 +119,6 @@ export function setupSVGPNGHandlers(langObj, alertObj, setZoomInfo) {
             }
             canvas.innerHTML = new XMLSerializer().serializeToString(processedSvg);
 
-            // 计算基准缩放适应
             const previewRect = previewArea.getBoundingClientRect();
             const scaleX = previewRect.width / targetWidth;
             const scaleY = previewRect.height / targetHeight;
@@ -186,7 +166,6 @@ export function setupSVGPNGHandlers(langObj, alertObj, setZoomInfo) {
         updateTransform();
     }
 
-    // ===== 预览区域缩放 =====
     previewArea.addEventListener('wheel', function(e) {
         e.preventDefault();
         const delta = e.deltaY > 0 ? 0.9 : 1.1;
@@ -202,7 +181,6 @@ export function setupSVGPNGHandlers(langObj, alertObj, setZoomInfo) {
         }
     });
 
-    // 拖拽预览
     previewArea.addEventListener('mousedown', function(e) {
         isDragging = true;
         dragStartX = e.clientX - currentTranslateX;
@@ -220,21 +198,18 @@ export function setupSVGPNGHandlers(langObj, alertObj, setZoomInfo) {
         isDragging = false;
     });
 
-    // 还原尺寸按钮
     resetBtn.addEventListener('click', function() {
         widthInput.value = Math.round(originalWidth);
         heightInput.value = Math.round(originalHeight);
         updatePreview();
     });
 
-    // 编辑器延迟预览
     let updateTimer;
     svgEditor.addEventListener('input', function() {
         clearTimeout(updateTimer);
         updateTimer = setTimeout(updatePreview, 300);
     });
 
-    // 宽高输入联动
     widthInput.addEventListener('input', function() {
         if (aspectRatioCheckbox.checked && this.value) {
             heightInput.value = Math.round(this.value / originalAspectRatio);
@@ -253,7 +228,6 @@ export function setupSVGPNGHandlers(langObj, alertObj, setZoomInfo) {
     stretchToFitCheckbox.addEventListener('change', updatePreview);
     fitBtn.addEventListener('click', fitToView);
 
-    // 文件选择
     chooseFileBtn.onclick = () => fileInput.click();
 
     function handleFile(file) {
@@ -270,7 +244,6 @@ export function setupSVGPNGHandlers(langObj, alertObj, setZoomInfo) {
         }
     }
 
-    // 拖放
     dropZone.addEventListener('dragover', function(e) {
         e.preventDefault();
         this.classList.add('dragover');
@@ -293,8 +266,111 @@ export function setupSVGPNGHandlers(langObj, alertObj, setZoomInfo) {
         }
     });
 
-    // ====== 下载PNG功能 ======
-    downloadBtn.addEventListener('click', async function() {
+    // 下拉菜单交互
+    let menuVisible = false;
+    let lastMenuDirection = null;
+
+    function setMenu(visible) {
+        if (menuVisible === visible) return;
+        menuVisible = visible;
+        if (menuTimeout) clearTimeout(menuTimeout);
+
+        if (visible) {
+            positionFormatMenu();
+            downloadFormatMenu.classList.remove('hide');
+            downloadFormatMenu.style.display = 'block';
+            downloadBtn.classList.add('active');
+            downloadBtn.setAttribute('aria-expanded', 'true');
+            if (downloadFormatMenu.querySelector('.active')) {
+                downloadFormatMenu.querySelector('.active').focus();
+            }
+        } else {
+            downloadBtn.classList.remove('active');
+            downloadBtn.setAttribute('aria-expanded', 'false');
+            downloadFormatMenu.classList.add('hide');
+            menuTimeout = setTimeout(() => {
+                downloadFormatMenu.style.display = 'none';
+                downloadFormatMenu.classList.remove('hide');
+            }, 220);
+        }
+    }
+
+    // 动态检测空间，优先向上弹
+    function positionFormatMenu() {
+        downloadFormatMenu.style.bottom = "110%";
+        downloadFormatMenu.style.top = "auto";
+        downloadFormatMenu.style.left = "0";
+        // 向上冲突才向下弹
+        const groupRect = downloadImageGroup.getBoundingClientRect();
+        const menuHeight = downloadFormatMenu.offsetHeight || 120;
+        if (groupRect.top - menuHeight < 0) {
+            downloadFormatMenu.style.top = "115%";
+            downloadFormatMenu.style.bottom = "auto";
+        }
+    }
+
+    downloadBtn.addEventListener('click', function(e) {
+        setMenu(!menuVisible);
+        if (menuVisible) {
+            setTimeout(() => {
+                if (downloadFormatMenu.querySelector('.active')) downloadFormatMenu.querySelector('.active').focus();
+            }, 80);
+        }
+    });
+
+    document.addEventListener('mousedown', function(e) {
+        if (!downloadImageGroup.contains(e.target)) setMenu(false);
+    });
+
+    // 键盘可访问性
+    downloadBtn.addEventListener('keydown', function(e) {
+        if (e.key === "Enter" || e.key === " " || e.key === "ArrowDown") {
+            e.preventDefault();
+            setMenu(true);
+        }
+    });
+
+    downloadFormatMenu.addEventListener('keydown', function(e) {
+        let items = Array.from(downloadFormatMenu.querySelectorAll('li'));
+        let idx = items.findIndex(li => li.classList.contains('active'));
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            let next = (idx + 1) % items.length;
+            items[next].focus && items[next].focus();
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            let prev = (idx - 1 + items.length) % items.length;
+            items[prev].focus && items[prev].focus();
+        } else if (e.key === 'Escape') {
+            setMenu(false);
+            downloadBtn.focus();
+        } else if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            items[idx].click();
+        }
+    });
+
+    downloadFormatMenu.addEventListener('click', function(e) {
+        const li = e.target.closest('li[data-format]');
+        if (!li) return;
+        currentImageFormat = li.dataset.format;
+        Array.from(downloadFormatMenu.children).forEach(child => {
+            child.classList.toggle('active', child === li);
+            child.setAttribute('aria-selected', child === li ? 'true' : 'false');
+        });
+        setMenu(false);
+        downloadCurrentImage();
+    });
+
+    Array.from(downloadFormatMenu.children).forEach(li => {
+        li.classList.toggle('active', li.dataset.format === currentImageFormat);
+        li.setAttribute('aria-selected', li.dataset.format === currentImageFormat ? "true" : "false");
+        li.addEventListener('keydown', function(e) {
+            downloadFormatMenu.dispatchEvent(new KeyboardEvent('keydown', e));
+        });
+    });
+
+    function downloadCurrentImage() {
         const svgCode = svgEditor.value.trim();
         if (!svgCode) {
             alert(alertObj.inputSVG);
@@ -302,13 +378,9 @@ export function setupSVGPNGHandlers(langObj, alertObj, setZoomInfo) {
         }
         const width = parseInt(widthInput.value) || originalWidth || 800;
         const height = parseInt(heightInput.value) || originalHeight || 600;
-
+        let format = currentImageFormat;
         try {
-            let cleanSvgCode = svgCode
-                .replace(/<\?xml[^?]*\?>/g, '')
-                .replace(/<!DOCTYPE[^>]*>/g, '')
-                .trim();
-
+            let cleanSvgCode = svgCode.replace(/<\?xml[^?]*\?>/g, '').replace(/<!DOCTYPE[^>]*>/g, '').trim();
             const parser = new DOMParser();
             const svgDoc = parser.parseFromString(cleanSvgCode, 'image/svg+xml');
             const parseError = svgDoc.querySelector('parsererror');
@@ -333,7 +405,6 @@ export function setupSVGPNGHandlers(langObj, alertObj, setZoomInfo) {
                     svgOriginalHeight = parseFloat(svgHeight) || svgOriginalHeight;
                 }
             }
-
             const canvas = document.createElement('canvas');
             canvas.width = width;
             canvas.height = height;
@@ -360,12 +431,10 @@ export function setupSVGPNGHandlers(langObj, alertObj, setZoomInfo) {
             const processedSvgString = serializer.serializeToString(parsedSvg);
 
             const img = new Image();
-            const svgBlob = new Blob([processedSvgString], {
-                type: 'image/svg+xml;charset=utf-8'
-            });
+            const svgBlob = new Blob([processedSvgString], {type:'image/svg+xml;charset=utf-8'});
             const url = URL.createObjectURL(svgBlob);
 
-            img.onload = function() {
+            img.onload = function () {
                 try {
                     if (!stretchToFitCheckbox.checked) {
                         const imgAspectRatio = svgOriginalWidth / svgOriginalHeight;
@@ -386,25 +455,28 @@ export function setupSVGPNGHandlers(langObj, alertObj, setZoomInfo) {
                     } else {
                         ctx.drawImage(img, 0, 0, width, height);
                     }
-                    canvas.toBlob(function(blob) {
+                    let mimeType = 'image/png'; let ext = 'png';
+                    if (format === 'jpeg') {mimeType = 'image/jpeg'; ext = 'jpeg';}
+                    else if (format === 'webp') {mimeType = 'image/webp'; ext = 'webp';}
+                    canvas.toBlob(function (blob) {
                         if (!blob) throw new Error('Failed to generate image');
                         const downloadUrl = URL.createObjectURL(blob);
                         const link = document.createElement('a');
-                        link.download = 'svg-to-png-' + Date.now() + '.png';
+                        link.download = `svg-to-${ext}-` + Date.now() + '.' + ext;
                         link.href = downloadUrl;
                         link.click();
                         setTimeout(() => {
                             URL.revokeObjectURL(url);
                             URL.revokeObjectURL(downloadUrl);
-                        }, 100);
-                    }, 'image/png');
+                        },100);
+                    }, mimeType);
                 } catch (e) {
-                    fallbackDownload(processedSvgString, width, height, svgOriginalWidth, svgOriginalHeight);
+                    fallbackDownload(processedSvgString, width, height, svgOriginalWidth, svgOriginalHeight, format);
                 }
                 URL.revokeObjectURL(url);
             };
             img.onerror = function() {
-                fallbackDownload(processedSvgString, width, height, svgOriginalWidth, svgOriginalHeight);
+                fallbackDownload(processedSvgString, width, height, svgOriginalWidth, svgOriginalHeight, format);
                 URL.revokeObjectURL(url);
             };
             img.src = url;
@@ -412,9 +484,9 @@ export function setupSVGPNGHandlers(langObj, alertObj, setZoomInfo) {
         } catch (error) {
             alert(alertObj.convertFail.replace('{msg}', error.message));
         }
-    });
+    }
 
-    function fallbackDownload(svgString, width, height, svgOriginalWidth, svgOriginalHeight) {
+    function fallbackDownload(svgString, width, height, svgOriginalWidth, svgOriginalHeight, format = 'png') {
         try {
             const canvas = document.createElement('canvas');
             canvas.width = width;
@@ -431,7 +503,7 @@ export function setupSVGPNGHandlers(langObj, alertObj, setZoomInfo) {
             const base64 = btoa(unescape(encodeURIComponent(validSvgString)));
             const dataUrl = 'data:image/svg+xml;base64,' + base64;
 
-            img.onload = function() {
+            img.onload = function () {
                 if (!stretchToFitCheckbox.checked && svgOriginalWidth && svgOriginalHeight) {
                     const imgAspectRatio = svgOriginalWidth / svgOriginalHeight;
                     const canvasAspectRatio = width / height;
@@ -452,27 +524,36 @@ export function setupSVGPNGHandlers(langObj, alertObj, setZoomInfo) {
                     ctx.drawImage(img, 0, 0, width, height);
                 }
                 try {
+                    let mimeType = 'image/png';
+                    let ext = 'png';
+                    if (format === 'jpeg') {
+                        mimeType = 'image/jpeg';
+                        ext = 'jpeg';
+                    } else if (format === 'webp') {
+                        mimeType = 'image/webp';
+                        ext = 'webp';
+                    }
                     canvas.toBlob(function(blob) {
                         if (blob) {
                             const link = document.createElement('a');
-                            link.download = 'svg-to-png-' + Date.now() + '.png';
+                            link.download = `svg-to-${ext}-` + Date.now() + '.' + ext;
                             link.href = URL.createObjectURL(blob);
                             link.click();
                         } else {
                             const link = document.createElement('a');
-                            link.download = 'svg-to-png-' + Date.now() + '.png';
-                            link.href = canvas.toDataURL('image/png');
+                            link.download = `svg-to-${ext}-` + Date.now() + '.' + ext;
+                            link.href = canvas.toDataURL(mimeType);
                             link.click();
                         }
-                    }, 'image/png');
+                    }, mimeType);
                 } catch (e) {
                     const link = document.createElement('a');
-                    link.download = 'svg-to-png-' + Date.now() + '.png';
+                    link.download = `svg-to-png-` + Date.now() + `.png`;
                     link.href = canvas.toDataURL('image/png');
                     link.click();
                 }
             };
-            img.onerror = function() {
+            img.onerror = function () {
                 alert(alertObj.totallyFail);
             };
             img.src = dataUrl;
@@ -482,22 +563,48 @@ export function setupSVGPNGHandlers(langObj, alertObj, setZoomInfo) {
         }
     }
 
-    // 多语言重绘
+    if (downloadSVGBtn) {
+        downloadSVGBtn.addEventListener('click', function () {
+            const svgCode = svgEditor.value.trim();
+            if (!svgCode) {
+                alert(alertObj.inputSVG);
+                return;
+            }
+            let cleanSvgCode = svgCode
+                .replace(/<\?xml[^?]*\?>/g, '')
+                .replace(/<!DOCTYPE[^>]*>/g, '')
+                .trim();
+
+            if (!/^<svg[\s>]/i.test(cleanSvgCode)) {
+                alert(alertObj.svgError);
+                return;
+            }
+            if (!cleanSvgCode.includes('xmlns')) {
+                cleanSvgCode = cleanSvgCode.replace('<svg', '<svg xmlns="http://www.w3.org/2000/svg"');
+            }
+            const blob = new Blob([cleanSvgCode], { type: "image/svg+xml;charset=utf-8" });
+            const url = URL.createObjectURL(blob);
+
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `svg-export-${Date.now()}.svg`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            setTimeout(() => URL.revokeObjectURL(url), 200);
+        });
+    }
+
     rerenderLangStatic();
 
-    // ===== 启动时自动填充默认SVG 示例代码（如编辑区为空） =====
     if (!svgEditor.value.trim()) {
         svgEditor.value =
-`<svg width="200" height="200" xmlns="http://www.w3.org/2000/svg">
+            `<svg width="200" height="200" xmlns="http://www.w3.org/2000/svg">
   <circle cx="100" cy="100" r="95" fill="#4CAF50"/>
-  <text x="100" y="110" text-anchor="middle" fill="white" font-size="30" font-weight="bold">SVG to PNG</text>
+  <text x="100" y="110" text-anchor="middle" fill="white" font-size="30" font-weight="bold">SVG Export</text>
 </svg>`;
     }
 
-    // ===== 初始化预览 =====
     updatePreview();
-
-    // ===== 语言切换适配 =====
-    // 提供给多语言切换时手动重新渲染（main.js 可直接暴露出去）
     setupSVGPNGHandlers.refreshLangElements = rerenderLangStatic;
 }
