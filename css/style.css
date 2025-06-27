@@ -164,6 +164,7 @@ body {
     height: 34px;
     display: flex;
     align-items: center;
+    justify-content: space-between;   /* 让标题在左, 缩放信息在右 */
     margin-bottom: 10px; /* 下边距用于和正文拉开 */
     padding: 0; /* 不可有上padding，否则两个容器上边距就会因文本长短差异而错位 */
 }
@@ -204,6 +205,7 @@ body {
     padding: 0 8px;
     border-radius: 0;
     box-shadow: none;
+    margin-left: auto;
 }
 
 /* 预览区域样式 */
