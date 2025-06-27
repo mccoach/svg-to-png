@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://svg2pngfree.vercel.app/sitemap.xml
