@@ -158,24 +158,25 @@ body {
 .preview-header {
     font-size: 18px;
     font-weight: bold;
-    line-height: 1.35;          /* 强制统一行高 */
-    margin-bottom: 10px;
     color: #333;
-    padding: 0;
-    height: 28px;               /* 直接规定固定高度 */
+    line-height: 1.2;
+    /* 强制高度，保证不同语言标题不会撑开 */
+    height: 34px;
     display: flex;
     align-items: center;
+    margin-bottom: 10px; /* 下边距用于和正文拉开 */
+    padding: 0; /* 不可有上padding，否则两个容器上边距就会因文本长短差异而错位 */
 }
 
 /* 编辑器容器样式 */
 /* 预览容器样式 */
 .editor-container,
 .preview-container {
-    flex: 1 1 0;
-    min-width: 0; /* 让flex正确分配空间 */
     padding: 20px;
-    border-radius: 8px;
     background-color: #fff;
+    border-radius: 8px;
+    flex: 1 1 0;
+    min-width: 0;
     display: flex;
     flex-direction: column;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
@@ -195,9 +196,14 @@ body {
 }
 
 .zoom-info {
-    font-size: 14px;
+    font-size: 15px;
     color: #666;
+    background: transparent;
     font-weight: normal;
+    /* 去掉原有定位和边框等 */
+    padding: 0 8px;
+    border-radius: 0;
+    box-shadow: none;
 }
 
 /* 预览区域样式 */
