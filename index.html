@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SVG Editor & Image Exporter</title>
-    <meta name="description" content="A lightweight web tool for editing SVG code, real-time preview, and exporting as PNG, JPEG, WebP or SVG files. 在线SVG代码编辑与实时预览，支持一键导出PNG、JPEG、WebP、SVG等多种格式图片。">
     <link rel="stylesheet" href="css/style.css">
     <link rel="icon" type="image/png" href="assets/favicon.ico">
 </head>
@@ -13,9 +12,20 @@
         <img src="assets/favicon.ico" alt="Logo" />
     </div>
 
+    <!-- 单按钮语言下拉菜单 -->
     <div class="lang-switch">
-        <button id="lang-en" data-lang="en">English</button>
-        <button id="lang-zh" data-lang="zh">中文</button>
+        <button class="lang-btn" id="langBtn" aria-haspopup="listbox" aria-expanded="false">
+            <span id="langText">English</span>
+            <span class="download-caret" aria-hidden="true">
+                <svg width="16" height="16" viewBox="0 0 14 14">
+                    <path d="M3 6l4 4 4-4" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/>
+                </svg>
+            </span>
+        </button>
+        <ul class="lang-menu" id="langMenu" role="listbox" tabindex="-1" style="display: none;">
+            <li data-lang="en" class="active" role="option" aria-selected="true" tabindex="0">English</li>
+            <li data-lang="zh" role="option" aria-selected="false" tabindex="0">中文</li>
+        </ul>
     </div>
 
     <div class="author-info" id="authorInfo">
@@ -28,24 +38,40 @@
         <input type="file" id="fileInput" accept=".svg,image/svg+xml">
     </div>
     
-    <div class="main-content">
-        <div class="editor-container">
-            <div class="editor-header" id="editorHeader">SVG Editor</div>
+    <div class="main-content-resizable" id="mainContentResizable">
+        <div class="editor-container" id="editorContainer">
+            <div class="editor-header" id="editorHeader">
+                SVG Editor
+                <span class="risk-tip" id="riskTip"></span>
+            </div>
             <textarea id="svgEditor" placeholder="Input or paste SVG code here..."></textarea>
         </div>
-        <div class="preview-container">
+        <div class="resizer" id="mainResizer" aria-label="Resize panels" tabindex="0">
+            <button id="restoreSplitBtn" class="restore-bar-btn" title="恢复一半一半分栏">
+                <svg viewBox="0 0 18 18" width="18" height="18" aria-hidden="true" focusable="false">
+                    <circle cx="9" cy="9" r="7" fill="#fff" stroke="#7b8db0" stroke-width="1.5" />
+                    <rect x="8.55" y="4" width="0.9" height="10" rx="0.45" fill="#7b8db0"/>
+                    <polyline points="5,9 8,9" stroke="#7b8db0" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+                    <polyline points="13,9 10,9" stroke="#7b8db0" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+                </svg>
+            </button>
+        </div>
+        <div class="preview-container" id="previewContainer">
             <div class="preview-header">
                 <span id="previewHeader">Preview</span>
                 <span class="zoom-info" id="zoomInfo">Zoom: 100%</span>
             </div>
-
             <div class="preview-area" id="previewArea">
                 <div id="svgPreview"></div>
+                <div class="vertical-zoom-bar" id="verticalZoomBar">
+                    <div class="vertical-zoom-bg"></div>
+                    <div class="vertical-zoom-thumb" id="verticalZoomThumb"></div>
+                </div>
             </div>
         </div>
     </div>
     
-    <div class="controls">
+    <div class="controls" id="controls">
         <div class="control-group">
             <label for="widthInput" id="widthLabel">Width:</label>
             <input type="number" id="widthInput" value="" placeholder="Auto" min="1">
@@ -71,17 +97,18 @@
         </div>
         <div class="right-controls">
             <button class="fit-btn" id="fitBtn">Fit</button>
-            <!-- 下载图片按钮组 -->
+            <!-- 图片导出菜单 -->
             <div class="download-image-group" id="downloadImageGroup">
-                <button class="download-btn" id="downloadBtn" type="button" aria-haspopup="listbox" aria-expanded="false" aria-controls="downloadFormatMenu">
+                <button class="download-btn" id="downloadBtn" type="button" aria-haspopup="listbox" aria-expanded="false">
                     <span id="downloadImageText">Download Image</span>
                     <span class="download-caret" aria-hidden="true">
-                        <svg class="caret-svg" width="16" height="16" viewBox="0 0 14 14">
+                        <svg width="16" height="16" viewBox="0 0 14 14">
                             <path d="M3 8l4-4 4 4" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/>
                         </svg>
                     </span>
                 </button>
-                <ul class="download-format-menu" id="downloadFormatMenu" role="listbox" tabindex="-1" aria-label="Image format" style="display: none;">
+
+                <ul class="download-format-menu" id="downloadFormatMenu" role="listbox" tabindex="-1" style="display: none;">
                     <li data-format="png" class="active" role="option" aria-selected="true" tabindex="0">PNG</li>
                     <li data-format="jpeg" role="option" aria-selected="false" tabindex="0">JPEG</li>
                     <li data-format="webp" role="option" aria-selected="false" tabindex="0">WebP</li>

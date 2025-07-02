@@ -1,5 +1,5 @@
 export default {
-    title: "SVG Editor, Preview & Image Exporter",
+    title: "SVG to PNG Converter",
     author: 'Built with ❤️ by <a href="#" title="Made with heart">Dajin</a>',
     dropZoneText: "Drag SVG files here or",
     chooseFile: "Choose File",
@@ -16,6 +16,7 @@ export default {
     downloadFormatLabel: "Export:",
     downloadBtn: "Download Image",
     downloadSVGBtn: "Download SVG",
+    riskTip: `⚠️ Refresh or close the page and your code in the editor will be lost.<br>Please export the code in time!`,
     alerts: {
         chooseSVG: "Please choose an SVG file!",
         inputSVG: "Please enter SVG code!",
