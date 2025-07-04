@@ -64,9 +64,12 @@
 
     git clone https://github.com/mccoach/svg-to-png.git
     cd svg-to-png
-#### 推荐用VSCode Live Server，或：
+
+**推荐用VSCode Live Server，或：**
+
     python -m http.server 8000
-#### 浏览器访问 http://localhost:8000
+    
+**浏览器访问 <http://localhost:8000>**
 
 ---
 
@@ -90,41 +93,50 @@
 
 ---
 
-## 🌐 多语言 / Language
+## 🌐 多语言（Multi-language）
 
-- 右上角下拉按钮可一键切换 “English / 中文”
-- 所有菜单、控件、风险提示会自动切换中/英文
-- **GitHub 的 README.md 只能双语并排，不支持点击切换语言**
+- 页面右上角下拉按钮可一键切换 “English / 中文”  
+   Click the language dropdown button in the upper-right corner to switch between English and Chinese.
+- 所有菜单、控件、风险提示自动中英文切换  
+   All menus, controls, and risk hints will automatically switch language.
+- **GitHub 的 README.md 只能双语并排，不支持点击切换语言**  
+  **GitHub README.md only supports bilingual content side by side, not language switching by click.**
 
 ---
 
 ## 📦 主要特性 Features
 
-- 拖拽/选择 SVG 文件导入，编辑区自动填充
-- 实时渲染和缩放（滚轮/拖动/移动端手势皆可用）
-- 菜单弱高亮，键盘/鼠标/无障碍兼容，移动端友好
-- 一键导出 PNG/JPEG/WebP，并导出 SVG
-- 分栏宽度和预览缩放条可随意调整
-- 编辑器标题处常驻风险提示，中英文同步切换
+- **拖拽/选择 SVG 文件导入，编辑区自动填充**
+  Drag-and-drop or select SVG files for instant code import
+- **实时渲染和缩放，支持鼠标、滚轮及触屏**
+  Live rendering and zoom, supports mouse, scroll wheel, and touch gestures
+- **菜单弱高亮，键盘/鼠标/无障碍兼容，移动端适用**  
+  Soft-highlighted menus, keyboard/mouse/accessible, mobile-friendly
+- **一键导出 PNG/JPEG/WebP，并可导出 SVG**
+  Export PNG/JPEG/WebP images and SVG source with one click
+- **分栏宽度/预览缩放条任意调整**
+  Resize preview/editor panels and zoom bar freely
+- **编辑器标题处常驻风险提示，中英文自动切换**
+  Permanent risk warning in the editor title, auto switches language
 
 ---
 
 ## 🙋 FAQ
 
 **Q: 为什么刷新后内容丢失？**  
-A: 纯前端编辑器，不自动存储。请在刷新或关闭页面前及时“导出图片”或“下载SVG源代码”。
+A: 前端编辑器不会自动保存，刷新或关闭网页后编辑器内容将丢失，务必及时导出图片或SVG！  
+**Q: Why is my SVG code lost after refresh?**  
+A: The editor is fully client-side and doesn’t save content persistently. Refreshing or closing the page will erase your code—please export your images or SVG files before that happens!
 
-**Q: 菜单三角形/指示图标不显示怎么办？**  
-A: 检查 HTML 结构中 download-caret 相关 SVG 和 CSS 是否存在，并未被 display:none 或 overflow:hidden 某些父元素遮挡。
+**Q: 菜单三角形/图标不显示怎么办？**  
+A: 检查HTML结构中 download-caret 相关 SVG 及CSS部分是否缺失或被 display:none 覆盖。  
+**Q: Why is the arrow icon missing in the export menu?**  
+A: Check if the download-caret SVG and its CSS are present and not hidden by `display: none`.
 
-**Q: 怎么用手机/平板？**  
-A: 支持。缩放条也能触控，菜单可手指点击。
-
----
-
-## 🏷️ License
-
-MIT
+**Q: 怎么用手机/平板操作？**
+A: 完全支持触控操作，分栏以及右侧缩放条均可点击滑动。  
+**Q: Can I use it on mobile devices?**
+A: Fully touch device friendly—both splitting and zoom bar support tap and slide.
 
 ---
 
